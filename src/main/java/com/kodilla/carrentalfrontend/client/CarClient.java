@@ -96,6 +96,7 @@ public class CarClient {
     public void returnCar(final Long carId){
         URI url = UriComponentsBuilder.fromHttpUrl("http://localhost:8080/v1/cars/")
                 .path(carId.toString()).build().encode().toUri();
+        
         restTemplate.put(url,String.class);
     }
 
