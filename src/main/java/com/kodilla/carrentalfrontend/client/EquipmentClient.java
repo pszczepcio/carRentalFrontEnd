@@ -1,12 +1,8 @@
 package com.kodilla.carrentalfrontend.client;
 
 import com.kodilla.carrentalfrontend.domain.AdditionalEquipment;
-import com.kodilla.carrentalfrontend.domain.CreateUserDto;
 import com.kodilla.carrentalfrontend.domain.GetEquipmentDto;
-import com.kodilla.carrentalfrontend.form.EquipmentForm;
 import com.vaadin.flow.component.notification.Notification;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -18,10 +14,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-@Component
 public class EquipmentClient {
-
-    private  RestTemplate restTemplate = new RestTemplate();
+    private RestTemplate restTemplate = new RestTemplate();
 
     public void createEquipment(final AdditionalEquipment additionalEquipment) {
 
@@ -33,7 +27,7 @@ public class EquipmentClient {
 
     public List<GetEquipmentDto> getEquipments() {
         try {
-                       GetEquipmentDto[] equipemntResponse = restTemplate.getForObject(
+            GetEquipmentDto[] equipemntResponse = restTemplate.getForObject(
                     "http://localhost:8080/v1/equipments", GetEquipmentDto[].class);
             return Arrays.asList(ofNullable(equipemntResponse).orElse(new GetEquipmentDto[0]));
         } catch (RestClientException e) {

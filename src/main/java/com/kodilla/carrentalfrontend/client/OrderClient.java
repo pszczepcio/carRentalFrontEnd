@@ -4,6 +4,7 @@ import com.kodilla.carrentalfrontend.domain.CreateOrderDto;
 import com.kodilla.carrentalfrontend.domain.OrderDto;
 import com.kodilla.carrentalfrontend.domain.UpdateOrderStatus;
 import com.vaadin.flow.component.notification.Notification;
+import org.springframework.http.HttpMethod;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -45,7 +46,7 @@ public class OrderClient {
             URI url = UriComponentsBuilder.fromHttpUrl(
                     "http://localhost:8080/v1/orders/")
                     .path(Long.toString(orderId)).build().encode().toUri();
-             orderDto = restTemplate.getForObject(url, OrderDto.class);
+            orderDto = restTemplate.getForObject(url, OrderDto.class);
 
         }catch (RestClientException e) {
             Notification.show("We don't have this car !!!");
@@ -66,10 +67,9 @@ public class OrderClient {
     }
 
     public void updateStatus(final UpdateOrderStatus updateOrderStatus){
-        URI url = UriComponentsBuilder.fromHttpUrl("http://localhost:8080/v1/orders/")
-                .path(updateOrderStatus.getOrderId().toString())
-                .path("/status/")
-                .path(String.valueOf(updateOrderStatus.isOrderStatus())).build().encode().toUri();
-        restTemplate.put(url,String.class);
+        URI url = UriComponentsBuilder.fromHttpUrl("http://localhost:8080/v1/orders/"
+                + updateOrderStatus.getOrderId() + "/status/"
+                + updateOrderStatus.isOrderStatus()).build().encode().toUri();
+        restTemplate.put(url, HttpMethod.PUT);
     }
 }

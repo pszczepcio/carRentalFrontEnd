@@ -1,4 +1,4 @@
-package com.kodilla.carrentalfrontend.dto;
+package com.kodilla.carrentalfrontend.domain;
 
 import java.util.ArrayList;
 import java.util.List;

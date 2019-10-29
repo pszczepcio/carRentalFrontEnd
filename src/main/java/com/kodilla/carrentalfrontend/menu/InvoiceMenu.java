@@ -1,57 +1,41 @@
 package com.kodilla.carrentalfrontend.menu;
 
-import com.kodilla.carrentalfrontend.domain.MainView;
+import com.kodilla.carrentalfrontend.mainview.MainView;
 import com.kodilla.carrentalfrontend.grid.InvoiceGrid;
 import com.kodilla.carrentalfrontend.workingarea.AddInvoice;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import lombok.Getter;
 
 public class InvoiceMenu {
-    private Button createInvoiceButton = new Button("Create invoice");
-    private Button invoicesButton = new Button("Invoices");
-    private VerticalLayout invoice = new VerticalLayout();
-    private AddInvoice addInvoice = new AddInvoice();
-    private InvoiceGrid invoiceGrid;
+    @Getter
+    private VerticalLayout invoiceLayout = new VerticalLayout();
+    private Button createInvoiceButton = new Button ("create invoice");
+    private Button invoices = new Button ("invoices");
+    private MainView mainView;
 
     public InvoiceMenu(MainView mainView) {
-        invoiceGrid = new InvoiceGrid(mainView);
+        this.mainView = mainView;
+        invoiceLayout.add(invoices, createInvoiceButton);
+        newInvoice();
+        showInvoices();
+    }
+
+    private void newInvoice() {
         createInvoiceButton.addClickListener(event -> {
-//            invoiceGrid.getInvoiceDtoGrid().setVisible(false);
-//            invoiceGrid.getInvoiceForm().getInvoiceVerticalLayout().setVisible(false);
-            addInvoice.getInvoiceVericalLayout().setVisible(true);
-            mainView.getPanelTwo().add(addInvoice.getInvoiceVericalLayout());
-            mainView.getPanelTwo().setVisible(true);
+            AddInvoice addInvoice = new AddInvoice(mainView);
+            mainView.getPanelTwo().removeAll();
+            mainView.getPanelTwo().add(addInvoice.getCreateInvoiceLayout());
             mainView.getPanelTwo().setSizeFull();
         });
+    }
 
-        invoicesButton.addClickListener(event -> {
-            addInvoice.getInvoiceVericalLayout().setVisible(false);
-            mainView.getPanelTwo().setVisible(true);
-            invoiceGrid.getInvoiceDtoGrid().setVisible(true);
+    private void showInvoices() {
+        invoices.addClickListener(event -> {
+            InvoiceGrid invoiceGrid = new InvoiceGrid(mainView);
+            mainView.getPanelTwo().removeAll();
             mainView.getPanelTwo().add(invoiceGrid.getInvoiceDtoGrid());
             mainView.getPanelTwo().setSizeFull();
-            invoiceGrid.invoicesRefresh();
         });
-        invoice.add(createInvoiceButton, invoicesButton);
-    }
-
-    public VerticalLayout getInvoiceButtons() {
-        return invoice;
-    }
-
-    public InvoiceGrid getInvoiceGrid() {
-        return invoiceGrid;
-    }
-
-    public void closeInvoiceForm(){
-        try {
-            getInvoiceGrid().getInvoiceForm().getInvoiceVerticalLayout().setVisible(false);
-        }catch (NullPointerException e) {
-
-        }
-    }
-
-    public AddInvoice getAddInvoice() {
-        return addInvoice;
     }
 }

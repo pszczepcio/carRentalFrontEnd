@@ -9,7 +9,11 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class GetInvoiceDto {
+public class UserDtoList {
         private Long id;
-        private String invoiceNumber;
+        private String name;
+        private String surname;
+        private int phone;
+        private String email;
+        private boolean loginStatus;
 }

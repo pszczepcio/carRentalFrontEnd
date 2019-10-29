@@ -21,7 +21,8 @@ dependencies {
     implementation 'com.vaadin:vaadin-spring-boot-starter'
     implementation ('org.springframework.boot:spring-boot-starter-web')
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    compile('com.google.code.gson:gson:2.8.2')
+    compileOnly (group: 'org.projectlombok', name: 'lombok', version: '1.18.6')
+    annotationProcessor ("org.projectlombok:lombok:1.18.6")
 }
 
 dependencyManagement {

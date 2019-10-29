@@ -1,25 +1,16 @@
 package com.kodilla.carrentalfrontend.client;
 
-import com.fasterxml.jackson.databind.util.JSONPObject;
-import com.google.gson.Gson;
+
 import com.kodilla.carrentalfrontend.domain.*;
-import com.kodilla.carrentalfrontend.dto.CarUpdateStatusDto;
+import com.kodilla.carrentalfrontend.domain.CarUpdateStatusDto;
 import com.vaadin.flow.component.notification.Notification;
-import org.json.JSONObject;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
 import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -96,7 +87,7 @@ public class CarClient {
     public void returnCar(final Long carId){
         URI url = UriComponentsBuilder.fromHttpUrl("http://localhost:8080/v1/cars/")
                 .path(carId.toString()).build().encode().toUri();
-        
+
         restTemplate.put(url,String.class);
     }
 
@@ -112,27 +103,8 @@ public class CarClient {
     }
 
     public void updateStatus(final CarUpdateStatusDto carUpdateStatusDto) throws IOException {
-//        try {
-////            URI url = UriComponentsBuilder.fromHttpUrl("http://localhost:8080/v1/cars")
-////                    .queryParam("id",carUpdateStatusDto.getId())
-////                    .queryParam("availability",carUpdateStatusDto.isAvailability()).build().encode().toUri();
-//
-//        //     restTemplate.put("http://localhost:8080/v1/cars", carUpdateStatusDto.getId(), carUpdateStatusDto.isAvailability(), CarUpdateStatusDto.class);
-//
-//            Gson gson = new Gson();
-//            String jsonContent = gson.toJson(carUpdateStatusDto);
-//            restTemplate.put("http://localhost:8080/v1/cars",jsonContent);
-////            restTemplate.put("http://localhost:8080/v1/cars", CarUpdateStatusDto.class);
-//        }catch (RestClientResponseException e){
-//            Notification.show("You enter bad data!");
-//        }
-        Gson gson = new Gson();
-        gson.toJson(carUpdateStatusDto);
-
-        RestTemplate restTemplate1 = new RestTemplate();
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-     //   restTemplate1.put("http://localhost:8080/v1/cars", gson);
-        restTemplate1.exchange("http://localhost:8080/v1/cars", HttpMethod.PUT,null,CarUpdateStatusDto.class);
+        URI url = UriComponentsBuilder.fromHttpUrl("http://localhost:8080/v1/cars/" + carUpdateStatusDto.getId()
+                + "/status/" +carUpdateStatusDto.isAvailability()).build().encode().toUri();
+        restTemplate.put(url, HttpMethod.PUT);
     }
 }

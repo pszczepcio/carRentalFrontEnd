@@ -3,7 +3,7 @@ package com.kodilla.carrentalfrontend.workingarea;
 import com.kodilla.carrentalfrontend.client.EquipmentClient;
 import com.kodilla.carrentalfrontend.client.OrderClient;
 import com.kodilla.carrentalfrontend.domain.CreateOrderDto;
-import com.kodilla.carrentalfrontend.domain.GetEquipmentDto;
+import com.kodilla.carrentalfrontend.mainview.MainView;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.datepicker.DatePicker;
@@ -27,13 +27,18 @@ public class AddOrder {
     private VerticalLayout addOrderVerticalLayout = new VerticalLayout();
     private OrderClient orderClient = new OrderClient();
     private EquipmentClient equipmentClient = new EquipmentClient();
+    private List<Checkbox> checkboxList = new ArrayList<>();
+    List<String> stringToAdd = new ArrayList<>();
+    private List<String> equipmentDtoList;
+    private MainView mainView;
 
-    public AddOrder(List<GetEquipmentDto> equipmentList) {
-        List<String> equipmentDtoList = equipmentList.stream()
+    public AddOrder(MainView mainView) {
+        this.mainView = mainView;
+        equipmentDtoList = equipmentClient.getEquipments().stream()
                 .map(a -> a.getEquipment())
                 .collect(Collectors.toList());
-        List<Checkbox> checkboxList = new ArrayList<>();
-        for (int i = 0 ; i < equipmentDtoList.size() ; i++){
+        // checkboxList = new ArrayList<>();
+        for (int i = 0; i < equipmentDtoList.size(); i++) {
             checkboxList.add(new Checkbox(equipmentDtoList.get(i)));
         }
         rentalDate.setLabel("Date of rental car:");
@@ -41,48 +46,57 @@ public class AddOrder {
         HorizontalLayout date = new HorizontalLayout(rentalDate, returnDate);
         HorizontalLayout buttons = new HorizontalLayout(addOrder, cancel);
         addOrderVerticalLayout.add(date, userId, carId, equipments);
-        for (int i = 0 ; i < checkboxList.size() ; i++){
+        for (int i = 0; i < checkboxList.size(); i++) {
             addOrderVerticalLayout.add(checkboxList.get(i));
         }
         addOrderVerticalLayout.add(buttons);
-        List<String> stringToAdd = new ArrayList<>();
         addOrder.addClickListener(event -> {
-            for (int i = 0 ; i < equipmentDtoList.size() ; i++){
-                if (checkboxList.get(i).getValue())
-                     stringToAdd.add(checkboxList.get(i).getLabel());
-            }
-            String value ="";
-            for (int i = 0 ; i < stringToAdd.size() ; i++){
-                value += stringToAdd.get(i) + ",";
-            }
+            updateCheckbox();
             CreateOrderDto createOrderDto = new CreateOrderDto(
                     rentalDate.getValue().toString(),
-                        returnDate.getValue().toString(),
-                        Long.parseLong(userId.getValue()),
-                        Long.parseLong(carId.getValue()),
-                        value);
+                    returnDate.getValue().toString(),
+                    Long.parseLong(userId.getValue()),
+                    Long.parseLong(carId.getValue()),
+                    getEquipment());
             orderClient.addOrder(createOrderDto);
             addOrderVerticalLayout.setVisible(false);
-            rentalDate.clear();
-            returnDate.clear();
-            userId.clear();
-            carId.clear();
-            for (int i = 0 ; i < checkboxList.size() ; i++){
-                checkboxList.get(i).clear();
-            }
+            clearField();
             addOrderVerticalLayout.setVisible(false);
         });
 
         cancel.addClickListener(event -> {
-            rentalDate.clear();
-            returnDate.clear();
-            userId.clear();
-            carId.clear();
-            addOrderVerticalLayout.setVisible(false);
+            clearField();
+            mainView.getPanelTwo().removeAll();
+            mainView.getAccordion().close();
         });
     }
 
     public VerticalLayout getAddOrderVerticalLayout() {
         return addOrderVerticalLayout;
+    }
+
+    private void clearField() {
+        rentalDate.clear();
+        returnDate.clear();
+        userId.clear();
+        carId.clear();
+        for (int i = 0; i < checkboxList.size(); i++) {
+            checkboxList.get(i).clear();
+        }
+    }
+
+    private void updateCheckbox() {
+        for (int i = 0; i < equipmentDtoList.size(); i++) {
+            if (checkboxList.get(i).getValue())
+                stringToAdd.add(checkboxList.get(i).getLabel());
+        }
+    }
+
+    private String getEquipment() {
+        String value = "";
+        for (int i = 0; i < stringToAdd.size(); i++) {
+            value += stringToAdd.get(i) + ",";
+        }
+        return value;
     }
 }

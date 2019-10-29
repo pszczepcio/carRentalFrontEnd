@@ -1,14 +1,17 @@
 package com.kodilla.carrentalfrontend.workingarea;
 
-import com.kodilla.carrentalfrontend.Avalilable;
+import com.kodilla.carrentalfrontend.CarAvailability;
 import com.kodilla.carrentalfrontend.client.CarClient;
 import com.kodilla.carrentalfrontend.domain.CreateCarDto;
+import com.kodilla.carrentalfrontend.mainview.MainView;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import lombok.Getter;
 
 public class AddCar {
     private CarClient carClient = new CarClient();
@@ -17,29 +20,37 @@ public class AddCar {
     private TextField producer = new TextField("Producer:");
     private TextField model = new TextField("Model:");
     private DatePicker dayOfProduction = new DatePicker();
-
-    //private TextField dayOfProduction = new TextField("Day of Production(year-month-day):");
     private TextField pricePerDay = new TextField("Price per day:");
     private TextField color = new TextField("Color:");
     private TextField numberOfSeats = new TextField("Numbers of seats:");
-    private ComboBox<Avalilable> status = new ComboBox<>("Status:");
-    private Button saveCar = new Button("save");
+    private ComboBox<CarAvailability> status = new ComboBox<>("Status:");
+    private Button save = new Button("save");
+    private Button cancel = new Button("cancel");
     private HorizontalLayout createCarHorizontalLayoutOne = new HorizontalLayout();
     private HorizontalLayout createCarHorizontalLayoutTwo = new HorizontalLayout();
     private HorizontalLayout createCarHorizontalLayoutThree = new HorizontalLayout();
+    private HorizontalLayout createCarHorizontalLayoutFour = new HorizontalLayout();
+    @Getter
     private VerticalLayout createCarLayout = new VerticalLayout();
+    private MainView mainView;
 
-    public AddCar() {
+    public AddCar(MainView mainView) {
+        this.mainView = mainView;
         dayOfProduction.setLabel("Day of Production");
-        //dayOfProduction.setWidth("300px");
-        status.setItems(Avalilable.values());
+        status.setItems(CarAvailability.values());
         createCarHorizontalLayoutOne.add(carClass, typeOfCar, producer);
         createCarHorizontalLayoutTwo.add(model, dayOfProduction, pricePerDay);
         createCarHorizontalLayoutThree.add(color, numberOfSeats,status);
+        createCarHorizontalLayoutFour.add(save, cancel);
         createCarLayout.add(createCarHorizontalLayoutOne, createCarHorizontalLayoutTwo,
-                            createCarHorizontalLayoutThree, saveCar);
+                createCarHorizontalLayoutThree, createCarHorizontalLayoutFour);
         createCarLayout.setSizeFull();
-        saveCar.addClickListener(event -> {
+        saveCar();
+        cancelAddingACar();
+    }
+
+    private void saveCar() {
+        save.addClickListener(event -> {
             CreateCarDto newCar = new CreateCarDto();
             newCar.setCarClass(carClass.getValue());
             newCar.setTypeOfCar(typeOfCar.getValue());
@@ -54,24 +65,18 @@ public class AddCar {
             }else {
                 newCar.setAvailability(false);
             }
-            carClient.createCar(newCar);
-            createCarLayout.setVisible(false);
+            try {
+                carClient.createCar(newCar);
+                mainView.getPanelTwo().removeAll();
+            }catch (NumberFormatException e) {
+                Notification.show("You entered the wrong data or did not enter it at all");
+            }
         });
     }
 
-    public VerticalLayout getCreateCarLayout() {
-        return createCarLayout;
-    }
-
-    public HorizontalLayout getCreateCarHorizontalLayoutOne() {
-        return createCarHorizontalLayoutOne;
-    }
-
-    public HorizontalLayout getCreateCarHorizontalLayoutTwo() {
-        return createCarHorizontalLayoutTwo;
-    }
-
-    public HorizontalLayout getCreateCarHorizontalLayoutThree() {
-        return createCarHorizontalLayoutThree;
-    }
-}
+    private void cancelAddingACar() {
+        cancel.addClickListener(event -> {
+            mainView.getPanelTwo().removeAll();
+            mainView.getAccordion().close();
+        });
+    }}

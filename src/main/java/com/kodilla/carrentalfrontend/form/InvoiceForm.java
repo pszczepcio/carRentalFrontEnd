@@ -2,54 +2,76 @@ package com.kodilla.carrentalfrontend.form;
 
 import com.kodilla.carrentalfrontend.client.InvoiceClient;
 import com.kodilla.carrentalfrontend.domain.InvoiceDto;
+import com.kodilla.carrentalfrontend.grid.InvoiceGrid;
+import com.kodilla.carrentalfrontend.mainview.MainView;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import lombok.Getter;
 
 public class InvoiceForm {
-    private VerticalLayout invoiceVerticalLayout = new VerticalLayout();
+    @Getter
+    private VerticalLayout invoiceFormLayout = new VerticalLayout();
     private InvoiceClient invoiceClient = new InvoiceClient();
+    private TextField id = new TextField("Id:");
+    private TextField invoiceNumber= new TextField("Invoice number:");
+    private TextField userId = new TextField("User id:");
+    private TextField orderId= new TextField("Order id:");
 
-    public InvoiceForm(final Long invoiceId) {
-        TextField id = new TextField("Id:");
-        TextField invoiceNumber= new TextField("Invoice number:");
-        TextField userId = new TextField("User id:");
-        TextField orderId= new TextField("Order id:");
+    private Button deleteButton = new Button("delete");
+    private Button cancelButton = new Button("cancel");
+    private Long invoiceId;
+    private MainView mainView;
 
-        Button deleteButton = new Button("Delete");
-        Button cancelButton = new Button("Cancel");
-        HorizontalLayout horizontalLayout = new HorizontalLayout();
-        horizontalLayout.add(deleteButton, cancelButton);
+    public InvoiceForm(MainView mainView, final Long invoiceId) {
+        this.mainView = mainView;
+        this.invoiceId = invoiceId;
+        invoiceFormLayout.add(
+                id,
+                invoiceNumber,
+                userId,
+                orderId,
+                new HorizontalLayout(deleteButton, cancelButton)
+        );
+        fillInAllFields();
+        mainView.getPanelTwo().removeAll();
+        mainView.getPanelTwo().add(invoiceFormLayout);
+        mainView.getPanelTwo().setSizeFull();
+        deleteInvoice();
+        cancelInvoice();
+    }
 
-        invoiceVerticalLayout.add(id, invoiceNumber,
-                userId, orderId, horizontalLayout);
-
+    private void fillInAllFields() {
         InvoiceDto invoiceDto = invoiceClient.getInvoiceDto(invoiceId);
         id.setValue(invoiceDto.getId().toString());
         invoiceNumber.setValue(invoiceDto.getInvoiceNumber());
         userId.setValue(invoiceDto.getUserId().toString());
         orderId.setValue(invoiceDto.getOrderId().toString());
+    }
 
+    private void deleteInvoice() {
         deleteButton.addClickListener(event -> {
-            id.clear();
-            invoiceNumber.clear();
-            userId.clear();
-            orderId.clear();
-            invoiceVerticalLayout.setVisible(false);
-            invoiceClient.deleteInvoice(invoiceId);
+            invoiceClient.deleteInvoice(Long.parseLong(id.getValue()));
+            clearFields();
+            mainView.getPanelTwo().removeAll();
+            InvoiceGrid invoiceGrid = new InvoiceGrid(mainView);
+            mainView.getPanelTwo().add(invoiceGrid.getInvoiceDtoGrid());
+            mainView.getPanelTwo().setSizeFull();
         });
+    }
 
+    private void cancelInvoice() {
         cancelButton.addClickListener(event -> {
-            invoiceVerticalLayout.setVisible(false);
-            id.clear();
-            invoiceNumber.clear();
-            userId.clear();
-            orderId.clear();
+            clearFields();
+            mainView.getPanelTwo().removeAll();
+            mainView.getAccordion().close();
         });
     }
 
-    public VerticalLayout getInvoiceVerticalLayout() {
-        return invoiceVerticalLayout;
-    }
-}
+    private void clearFields() {
+        id.clear();
+        invoiceNumber.clear();
+        userId.clear();
+        orderId.clear();
+    }}

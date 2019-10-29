@@ -1,5 +1,5 @@
 package com.kodilla.carrentalfrontend;
 
-public enum Avalilable {
+public enum CarAvailability {
     AVAILABLE, UNAVAILABLE
 }

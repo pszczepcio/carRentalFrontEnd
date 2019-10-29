@@ -1,47 +1,49 @@
 package com.kodilla.carrentalfrontend.form;
 
-import com.kodilla.carrentalfrontend.Avalilable;
+import com.kodilla.carrentalfrontend.CarAvailability;
 import com.kodilla.carrentalfrontend.client.CarClient;
-import com.kodilla.carrentalfrontend.dto.CarUpdateStatusDto;
+import com.kodilla.carrentalfrontend.domain.CarUpdateStatusDto;
 import com.kodilla.carrentalfrontend.domain.GetCarDto;
+import com.kodilla.carrentalfrontend.grid.CarGrid;
+import com.kodilla.carrentalfrontend.mainview.MainView;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import lombok.Getter;
 
 import java.io.IOException;
 
 public class CarForm {
-    private VerticalLayout carFormVertical = new VerticalLayout();
+    @Getter
+    private VerticalLayout carFormLayout = new VerticalLayout();
     private CarClient carClient = new CarClient();
+    private TextField carClass = new TextField("Car class:");
+    private TextField typeOfCar = new TextField("Type of car:");
+    private TextField producer = new TextField("Producer:");
+    private TextField model = new TextField("Model:");
+    private DatePicker dayOfProduction = new DatePicker();
+    private TextField pricePerDay = new TextField("Price per day:");
+    private TextField color = new TextField("Color:");
+    private TextField numberOfSeats = new TextField("Numbers of seats:");
+    private ComboBox<CarAvailability> status = new ComboBox<>("Status:");
+    private Button deleteCar = new Button("delete");
+    private Button updateCarStatus = new Button("update status");
+    private MainView mainView;
 
-    public CarForm(Long eventCarId) {
-        TextField carClass = new TextField("Car class:");
-        TextField typeOfCar = new TextField("Type of car:");
-        TextField producer = new TextField("Producer:");
-        TextField model = new TextField("Model:");
-        DatePicker dayOfProduction = new DatePicker();
+    public CarForm(MainView mainView, Long eventCarGridId) {
+        this.mainView = mainView;
         dayOfProduction.setLabel("Day of Production");
         dayOfProduction.setWidth("300px");
-        TextField pricePerDay = new TextField("Price per day:");
-        TextField color = new TextField("Color:");
-        TextField numberOfSeats = new TextField("Numbers of seats:");
-        ComboBox<Avalilable> status = new ComboBox<>("Status:");
 
-        Button deleteCar = new Button("delete");
-        Button updateCar = new Button("update");
-        Button updateCarStatus = new Button("update status");
+        carFormLayout.add(new HorizontalLayout(carClass, typeOfCar, producer),
+                new HorizontalLayout(model, dayOfProduction, pricePerDay),
+                new HorizontalLayout(color, numberOfSeats, status),
+                new HorizontalLayout(deleteCar, updateCarStatus));
 
-        HorizontalLayout carFormHorizontalOne = new HorizontalLayout(carClass, typeOfCar, producer);
-        HorizontalLayout carFormHorizontalTwo = new HorizontalLayout(model, dayOfProduction, pricePerDay);
-        HorizontalLayout carFormHorizontalThree = new HorizontalLayout(color, numberOfSeats, status);
-        HorizontalLayout carFormHorizontalFour = new HorizontalLayout(deleteCar, updateCar, updateCarStatus);
-
-        carFormVertical.add(carFormHorizontalOne, carFormHorizontalTwo,
-                carFormHorizontalThree, carFormHorizontalFour);
-        GetCarDto getCarDto = carClient.getCar(eventCarId);
+        GetCarDto getCarDto = carClient.getCar(eventCarGridId);
         carClass.setValue(getCarDto.getCarClass());
         typeOfCar.setValue(getCarDto.getTypeOfCar());
         producer.setValue(getCarDto.getProducer());
@@ -50,42 +52,37 @@ public class CarForm {
         pricePerDay.setValue(String.valueOf(getCarDto.getPricePerDay()));
         color.setValue(getCarDto.getColor());
         numberOfSeats.setValue(String.valueOf(getCarDto.getNumberOfSeats()));
-        status.setItems(Avalilable.AVAILABLE, Avalilable.UNAVAILABLE);
-//        if (getCarDto.isAvailability()) {
-//            status.setItems(Avalilable.AVAILABLE, );
-//        } else {
-//            status.setItems(Avalilable.UNAVAILLABLE);
-//        }
+        status.setItems(CarAvailability.AVAILABLE, CarAvailability.UNAVAILABLE);
 
-        deleteCar.addClickListener(event -> {
-            carClient.deleteCar(eventCarId);
-            carFormVertical.setVisible(false);
-        });
+        removeCar(eventCarGridId);
+        newStatus(eventCarGridId);
+    }
 
+    private void newStatus(Long eventCarGridId) {
         updateCarStatus.addClickListener(event -> {
-//            String value="";
             CarUpdateStatusDto carUpdateStatusDto = new CarUpdateStatusDto();
-            carUpdateStatusDto.setId(eventCarId);
+            carUpdateStatusDto.setId(eventCarGridId);
             if (status.getValue().toString().equals("AVAILABLE")){
                 carUpdateStatusDto.setAvailability(true);
-//                    value = "true";
             }else {
                 carUpdateStatusDto.setAvailability(false);
-//                    value = "false";
             }
-//            CarUpdateStatusDto carUpdateStatusDto = new CarUpdateStatusDto(eventCarId.toString(), value);
             try {
                 carClient.updateStatus(carUpdateStatusDto);
+                mainView.getPanelTwo().removeAll();
+                CarGrid carGrid = new CarGrid(mainView);
+                mainView.getPanelTwo().add(carGrid.getCarDtoGrid());
+                carGrid.carsListRefresh();
+                mainView.getPanelTwo().setSizeFull();
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            carFormVertical.setVisible(false);
         });
-
-
     }
 
-    public VerticalLayout getCarFormVertical() {
-        return carFormVertical;
-    }
-}
+    private void removeCar(Long eventCarGridId){
+        deleteCar.addClickListener(event -> {
+            carClient.deleteCar(eventCarGridId);
+            carFormLayout.setVisible(false);
+        });
+    }}
