@@ -37,7 +37,6 @@ public class AddOrder {
         equipmentDtoList = equipmentClient.getEquipments().stream()
                 .map(a -> a.getEquipment())
                 .collect(Collectors.toList());
-        // checkboxList = new ArrayList<>();
         for (int i = 0; i < equipmentDtoList.size(); i++) {
             checkboxList.add(new Checkbox(equipmentDtoList.get(i)));
         }
